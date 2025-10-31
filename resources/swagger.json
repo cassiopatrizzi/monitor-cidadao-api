@@ -1,0 +1,447 @@
+  {
+    "servers": [
+      { "url": "http://localhost:3000" }
+    ],
+    "openapi": "3.0.3",
+    "info": {
+      "title": "Monitor Cidadão API",
+      "version": "1.0.0",
+      "description": "API para monitoramento de índices urbanos e relatos de moradores."
+    },
+    "paths": {
+      "/users/register": {
+        "post": {
+          "summary": "Cadastro de usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserInput" }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Usuário cadastrado (não validado). E-mail de validação enviado.",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "id": "string",
+                    "name": "string",
+                    "cpf": "string",
+                    "email": "string",
+                    "password": "string",
+                    "address": "string",
+                    "district": "string",
+                    "zipcode": "string",
+                    "city": "string",
+                    "state": "string",
+                    "validated": false,
+                    "message": "E-mail de validação enviado para o usuário."
+                  },
+                  "schema": { "$ref": "#/components/schemas/UserResponse" }
+                }
+              }
+            },
+            "400": { "description": "Dados obrigatórios ausentes" },
+            "409": { "description": "E-mail já cadastrado" }
+          }
+        }
+      },
+      "/users/login": {
+        "post": {
+          "summary": "Login de usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginInput" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login bem-sucedido",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                }
+              }
+            },
+            "401": { "description": "Credenciais inválidas" },
+            "403": { "description": "E-mail não validado" }
+          }
+        }
+      },
+  "/users/profile": {
+        "get": {
+          "summary": "Consultar dados do usuário",
+          "security": [{ "bearerAuth": [] }],
+          "responses": {
+            "200": { "description": "Dados do usuário", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+            "401": { "description": "Não autenticado" }
+          }
+        },
+        "put": {
+          "summary": "Alterar dados do usuário (total)",
+          "security": [{ "bearerAuth": [] }],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserUpdate" }
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Usuário atualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+            "400": { "description": "Dados inválidos" },
+            "401": { "description": "Não autenticado" }
+          }
+        },
+        "patch": {
+          "summary": "Alterar dados do usuário (parcial)",
+          "security": [{ "bearerAuth": [] }],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserUpdate" }
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Usuário atualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+            "400": { "description": "Dados inválidos" },
+            "401": { "description": "Não autenticado" }
+          }
+        }
+      },
+    "/reports": {
+      "post": {
+        "summary": "Adicionar relato",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReportInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Relato criado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Report" } } } },
+          "400": { "description": "Dados obrigatórios ausentes" }
+        }
+      },
+      "get": {
+        "summary": "Listar relatos",
+        "responses": {
+          "200": { "description": "Lista de relatos", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Report" } } } } },
+          "500": { "description": "Erro interno" }
+        }
+      }
+    },
+    "/info/all": {
+      "get": {
+        "summary": "Obter todas as informações urbanas agregadas",
+        "description": "Retorna dados de qualidade do ar, ruído, iluminação, buracos, lixo, obras, áreas alagadas, transporte público e redes sociais, baseados na localização informada.",
+        "parameters": [
+          {
+            "name": "localization",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Latitude e longitude separadas por vírgula (ex: -23.5,-46.6). Copie e cole direto do Google Maps ou Waze."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Informações agregadas retornadas com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "airQuality": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/AirQuality" },
+                        "url": { "type": "string" },
+                        "waqi": {
+                          "type": "object",
+                          "properties": {
+                            "info": {
+                              "type": "object",
+                              "properties": {
+                                "aqi": { "type": "integer" },
+                                "dominentpol": { "type": "string" }
+                              }
+                            },
+                            "url": { "type": "string" }
+                          }
+                        }
+                      }
+                    },
+                    "noise": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/Noise" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "lighting": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/Lighting" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "potholes": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/Potholes" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "trash": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/Trash" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "construction": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/Construction" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "floodedAreas": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/FloodedAreas" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "publicTransport": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/PublicTransport" },
+                        "url": { "type": "string" }
+                      }
+                    },
+                    "social": {
+                      "type": "object",
+                      "properties": {
+                        "info": { "$ref": "#/components/schemas/Social" },
+                        "url": { "type": "string" }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "airQuality": {
+                    "info": { "quality": "Boa", "source": "API externa" },
+                    "url": "http://api.openweathermap.org/data/2.5/air_pollution?lat=-23.5&lon=-46.6&appid=SEU_API_KEY",
+                    "waqi": {
+                      "info": { "aqi": 42, "dominentpol": "pm25" },
+                      "url": "https://api.waqi.info/feed/geo:-23.5;-46.6/?token=SEU_WAQI_TOKEN"
+                    }
+                  },
+                  "noise": {
+                    "info": null,
+                    "url": "https://dados.prefeitura.sp.gov.br/noise?lat=-23.5&lng=-46.6"
+                  },
+                  "lighting": {
+                    "info": null,
+                    "url": "https://dados.prefeitura.sp.gov.br/lighting?lat=-23.5&lng=-46.6"
+                  },
+                  "potholes": {
+                    "info": null,
+                    "url": "https://dados.prefeitura.sp.gov.br/potholes?lat=-23.5&lng=-46.6"
+                  },
+                  "trash": {
+                    "info": null,
+                    "url": "https://dados.prefeitura.sp.gov.br/trash?lat=-23.5&lng=-46.6"
+                  },
+                  "construction": {
+                    "info": null,
+                    "url": "https://dados.prefeitura.sp.gov.br/construction?lat=-23.5&lng=-46.6"
+                  },
+                  "floodedAreas": {
+                    "info": null,
+                    "url": "https://dados.prefeitura.sp.gov.br/flooded-areas?lat=-23.5&lng=-46.6"
+                  },
+                  "publicTransport": {
+                    "info": null,
+                    "url": "https://api.transitfeeds.com/v1/getStops?lat=-23.5&lng=-46.6&key=SEU_GTFS_KEY"
+                  },
+                  "social": {
+                    "info": null,
+                    "url": "https://api.twitter.com/2/tweets/search/recent?query=geocode:-23.5,-46.6,5km"
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Localização não informada ou inválida." },
+          "500": { "description": "Erro interno ao buscar informações." }
+        }
+      }
+    }
+  },
+  "components": {
+  "schemas": {
+      "UserInput": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": { "type": "string" },
+          "cpf": { "type": "string" },
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "address": { "type": "string" },
+          "district": { "type": "string" },
+          "zipcode": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" }
+        }
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "cpf": { "type": "string" },
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "address": { "type": "string" },
+          "district": { "type": "string" },
+          "zipcode": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "cpf": { "type": "string" },
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "address": { "type": "string" },
+          "district": { "type": "string" },
+          "zipcode": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "validated": { "type": "boolean" }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string" },
+          "password": { "type": "string" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" }
+        }
+      },
+      "ReportInput": {
+        "type": "object",
+        "required": ["type", "description"],
+        "properties": {
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "location": { "type": "string" }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "location": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AirQuality": {
+        "type": "object",
+        "properties": {
+          "quality": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "Noise": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "Lighting": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "Potholes": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer" },
+          "source": { "type": "string" }
+        }
+      },
+      "Trash": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "Construction": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "FloodedAreas": {
+        "type": "object",
+        "properties": {
+          "areas": { "type": "array", "items": { "type": "string" } },
+          "source": { "type": "string" }
+        }
+      },
+      "PublicTransport": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "Social": {
+        "type": "object",
+        "properties": {
+          "mentions": { "type": "integer" },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
