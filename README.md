@@ -86,7 +86,7 @@ monitor-cidadao-api/
 ```
 2. Inicie a API:
 ```bash
-npm start
+   npm start
 ```
 3. Acesse a documentação em `/api-docs`
 
