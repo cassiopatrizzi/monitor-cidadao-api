@@ -82,11 +82,11 @@ monitor-cidadao-api/
 ## Como executar
 1. Instale as dependências:
 ```bash
-   `npm install`
+   npm install
 ```
 2. Inicie a API:
 ```bash
-`npm start`
+npm start
 ```
 3. Acesse a documentação em `/api-docs`
 
