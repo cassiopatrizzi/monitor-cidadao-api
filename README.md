@@ -1,16 +1,15 @@
-
 # Monitor Cidadão API
 
 ## Descrição
-API RESTful para monitoramento de índices que influenciam a vida dos moradores de uma cidade. Permite cadastro, autenticação, consulta e atualização de usuários, além de relatos e visualização de informações sobre qualidade do ar, barulho, iluminação, buracos, lixo, obras, áreas alagadas, transporte público e relatos de moradores.
+API RESTful para monitoramento de índices que influenciam a vida dos moradores de uma cidade. Permite cadastro, autenticação, consulta e atualização de usuários, além de relatos e visualização de informações agregadas sobre qualidade do ar, prefeitura local, estabelecimentos ou serviços próximos (Google Places), baseados na localização do usuário.
 
 ## Funcionalidades
 - Cadastro e login de usuários
 - Consulta e alteração de dados do usuário
 - Inserção de cidade, estado, endereço ou localização
 - Adição e consulta de relatos
-- Visualização de indicadores urbanos
-- Integração com APIs externas (meteorologia, qualidade do ar, energia, prefeituras, transporte público, redes sociais)
+- Visualização de informações urbanas agregadas (qualidade do ar, prefeitura local e estabelecimentos próximos)
+- Integração com APIs externas (OpenWeatherMap, Nominatim, Google Places)
 - Envio de e-mail de validação de cadastro
 - Documentação Swagger
 
@@ -32,7 +31,7 @@ API RESTful para monitoramento de índices que influenciam a vida dos moradores 
 - Cadastro, autenticação e atualização de usuários
 - Consulta de perfil do usuário autenticado
 - Cadastro e consulta de relatos urbanos
-- Consulta de indicadores urbanos agregados (qualidade do ar, ruído, iluminação, buracos, lixo, obras, áreas alagadas, transporte público, redes sociais)
+- Consulta de informações urbanas agregadas (qualidade do ar, prefeitura local e estabelecimentos próximos)
 - Integração com APIs externas para dados dinâmicos
 - Envio de e-mail de validação de cadastro
 - Documentação interativa via Swagger
@@ -80,9 +79,66 @@ monitor-cidadao-api/
 ```
 
 ## Como executar
-1. Instale as dependências: `npm install`
-2. Inicie a API: `npm start`
+1. Instale as dependências: 
+```bash
+    npm install
+```
+2. Inicie a API: 
+```bash
+    npm start
+```
 3. Acesse a documentação em `/api-docs`
 
+## Configuração do arquivo `.env`
+
+Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo (preencha com suas próprias credenciais):
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu_email@gmail.com
+SMTP_PASS=sua_senha_de_aplicativo
+SMTP_FROM=no-reply@monitorcidadao.com
+OPENWEATHER_KEY=seu_token_openweather
+GOOGLE_PLACES_KEY=seu_token_google_places
+```
+
+- O arquivo `.env` é obrigatório para o funcionamento das integrações externas (e-mail, clima, Google Places).
+- Nunca compartilhe seu `.env` publicamente.
+
 ## Observações
-- Todas as informações são baseadas em dados fornecidos pelos usuários
+- As informações agregadas do endpoint `/info/all` são baseadas em dados de APIs externas reais e localização informada pelo usuário.
+
+## Filtro de tipo de local (Google Places)
+
+O endpoint `/info/all` aceita o parâmetro opcional `type` na query string para filtrar o tipo de local retornado pela Google Places API. Você pode informar o tipo em português (ex: `type=restaurante`, `type=rodoviaria`, `type=hospital`, etc) e o sistema faz a conversão automática para o tipo correspondente em inglês exigido pela API.
+
+Exemplos de tipos aceitos em português:
+
+- restaurante → restaurant
+- hospital → hospital
+- escola → school
+- farmacia → pharmacy
+- banco → bank
+- supermercado → supermarket
+- policia → police
+- parque → park
+- bar → bar
+- hotel → lodging
+- academia → gym
+- rodoviaria → bus_station
+- museu → museum
+- cinema → movie_theater
+- igreja → church
+
+## Sobre a URL retornada (campo `places.url`)
+
+No retorno do endpoint `/info/all`, o campo `places.url` mostra a URL de exemplo utilizada para a busca no Google Places. Se você informar o parâmetro `type`, ele será interpolado na URL como `includedTypes`, refletindo exatamente o filtro aplicado na consulta. Exemplo:
+
+```
+"places": {
+    "info": { ... },
+    "url": "https://places.googleapis.com/v1/places:searchNearby?location.latitude=-23.5&location.longitude=-46.6&includedTypes=restaurant&key=SEU_GOOGLE_PLACES_KEY"
+}
+```
+Se não informar o parâmetro `type`, a URL não terá o parâmetro `includedTypes` e retorna todos os tipos de locais próximos.

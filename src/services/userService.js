@@ -1,3 +1,13 @@
+exports.deleteProfile = async (userId) => {
+  const idx = users.findIndex(u => u.id === userId);
+  if (idx === -1) {
+    const err = new Error('Não autenticado');
+    err.status = 401;
+    throw err;
+  }
+  users.splice(idx, 1);
+  return;
+};
 exports.validateUser = async (token) => {
   const user = users.find(u => u.id === token);
   if (!user) {
@@ -7,12 +17,8 @@ exports.validateUser = async (token) => {
   return {
     id: user.id,
     name: user.name,
-    cpf: user.cpf,
     email: user.email,
     password: user.password,
-    address: user.address,
-    district: user.district,
-    zipcode: user.zipcode,
     city: user.city,
     state: user.state,
     validated: user.validated
@@ -41,8 +47,8 @@ function sendValidationEmail(email, token) {
 }
 
 exports.register = async (data) => {
-  const { name, cpf, email, password, address, district, zipcode, city, state } = data;
-  if (!name || !email || !password || (!city && !address)) {
+  const { name, email, password, city, state } = data;
+  if (!name || !email || !password || !city) {
     const err = new Error('Dados obrigatórios ausentes');
     err.status = 400;
     throw err;
@@ -55,12 +61,8 @@ exports.register = async (data) => {
   const user = {
     id: uuidv4(),
     name,
-    cpf,
     email,
     password,
-    address,
-    district,
-    zipcode,
     city,
     state,
     validated: false,
@@ -68,7 +70,7 @@ exports.register = async (data) => {
   };
   users.push(user);
   await sendValidationEmail(email, user.id);
-  return { id: user.id, name: user.name, cpf: user.cpf, email: user.email, password: user.password, address: user.address, district: user.district, zipcode: user.zipcode, city: user.city, state: user.state, validated: user.validated };
+  return { id: user.id, name: user.name, email: user.email, password: user.password, city: user.city, state: user.state, validated: user.validated };
 };
 
 const jwt = require('jsonwebtoken');
@@ -87,7 +89,7 @@ exports.login = async ({ email, password }) => {
     throw err;
   }
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '2h' });
-  return token;
+  return { token, validated: user.validated };
 };
 
 exports.getProfile = async (userId) => {
@@ -97,7 +99,7 @@ exports.getProfile = async (userId) => {
     err.status = 401;
     throw err;
   }
-  return { id: user.id, name: user.name, cpf: user.cpf, email: user.email, password: user.password, address: user.address, district: user.district, zipcode: user.zipcode, city: user.city, state: user.state, validated: user.validated };
+  return { id: user.id, name: user.name, email: user.email, password: user.password, city: user.city, state: user.state };
 };
 
 exports.updateProfile = async (userId, data) => {
@@ -108,5 +110,5 @@ exports.updateProfile = async (userId, data) => {
     throw err;
   }
   Object.assign(user, data);
-  return { id: user.id, name: user.name, cpf: user.cpf, email: user.email, password: user.password, address: user.address, district: user.district, zipcode: user.zipcode, city: user.city, state: user.state, validated: user.validated };
+  return { id: user.id, name: user.name, email: user.email, password: user.password, address: user.address, district: user.district, zipcode: user.zipcode, city: user.city, state: user.state, validated: user.validated };
 };

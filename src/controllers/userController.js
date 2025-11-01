@@ -1,4 +1,11 @@
-// Atualização parcial do perfil do usuário (PATCH)
+exports.deleteProfile = async (req, res) => {
+  try {
+    await userService.deleteProfile(req.user.id);
+    res.status(204).send();
+  } catch (err) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
+};
 exports.patchProfile = async (req, res) => {
   try {
     const user = await userService.updateProfile(req.user.id, req.body);
@@ -31,8 +38,8 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const token = await userService.login(req.body);
-    res.json({ token });
+    const result = await userService.login(req.body);
+    res.json(result);
   } catch (err) {
     res.status(err.status || 401).json({ error: err.message });
   }
