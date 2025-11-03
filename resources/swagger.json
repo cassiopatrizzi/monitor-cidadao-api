@@ -127,6 +127,16 @@
             },
             "401": {
               "description": "Não autenticado"
+            },
+            "404": {
+              "description": "Usuário não encontrado",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "Usuário não encontrado"
+                  }
+                }
+              }
             }
           }
         },
@@ -230,6 +240,7 @@
         "post": {
           "tags": ["Relatórios"],
           "summary": "Adicionar relato",
+          "security": [{ "bearerAuth": [] }],
           "requestBody": {
             "required": true,
             "content": {
@@ -242,7 +253,7 @@
           },
           "responses": {
             "201": {
-              "description": "Relato criado",
+              "description": "Relato criado com sucesso.",
               "content": {
                 "application/json": {
                   "schema": {
@@ -429,9 +440,6 @@
         "UserResponse": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string"
-            },
             "name": {
               "type": "string"
             },
@@ -493,12 +501,6 @@
         "Report": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string"
-            },
-            "userId": {
-              "type": "string"
-            },
             "type": {
               "type": "string"
             },

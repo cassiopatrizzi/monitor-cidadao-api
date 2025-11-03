@@ -45,16 +45,23 @@ exports.login = async (req, res) => {
   }
 };
 
-
 exports.getProfile = async (req, res) => {
   try {
     const user = await userService.getProfile(req.user.id);
-    res.json(user);
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+    const filteredUser = {
+      name: user.name,
+      email: user.email,
+      city: user.city,
+      state: user.state
+    };
+    res.json(filteredUser);
   } catch (err) {
     res.status(err.status || 401).json({ error: err.message });
   }
 };
-
 
 exports.updateProfile = async (req, res) => {
   try {

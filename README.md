@@ -16,6 +16,7 @@ API RESTful para monitoramento de índices que influenciam a vida dos moradores 
 ## Regras de Negócio
 - Usuário deve informar nome, e-mail, senha, cidade, estado e endereço
 - Cadastro exige validação por e-mail
+- Apenas usuários autenticados podem consultar seu próprio perfil
 - Relatos podem ser consultados por todos os usuários
 - Dados armazenados em banco de dados em memória
 
