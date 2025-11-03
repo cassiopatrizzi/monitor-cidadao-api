@@ -95,7 +95,7 @@ monitor-cidadao-api/
 Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo (preencha com suas próprias credenciais):
 
 ```
-SMTP_HOST=smtp.gmail.com
+SMTP_HOST=smtp.seu_host_email.com
 SMTP_PORT=587
 SMTP_USER=seu_email@gmail.com
 SMTP_PASS=sua_senha_de_aplicativo
