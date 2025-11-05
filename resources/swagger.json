@@ -312,7 +312,19 @@
               "schema": {
                 "type": "string"
               },
-              "description": "Tipo de local para filtrar na busca do Google Places (ex: restaurante, hospital, rodoviaria, etc). Se não informado, retorna todos os tipos."
+              "description": "Busca do Google Places (ex: restaurante, hospital, rodoviaria, combustiveis, etc). Se não informado, retorna todos os tipos. Digite palavras sem acentuação. Nomes compostos utilize underline (_). Ex: parque_infantil, postos_combustiveis."
+            },
+            {
+              "name": "radius",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 50000,
+                "default": 5000
+              },
+              "description": "Raio de busca em metros para os locais de interesse. Valor padrão: 5000. Intervalo permitido: 100 a 50000."
             }
           ],
           "responses": {

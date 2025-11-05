@@ -1,29 +1,13 @@
 const axios = require('axios');
 require('dotenv').config();
 
-// Mapeamento pt-br para en-US dos tipos do Google Places
-const typeMap = {
-  restaurante: "restaurant",
-  hospital: "hospital",
-  escola: "school",
-  farmacia: "pharmacy",
-  banco: "bank",
-  supermercado: "supermarket",
-  policia: "police",
-  parque: "park",
-  bar: "bar",
-  hotel: "lodging",
-  academia: "gym",
-  rodoviaria: "bus_station",
-  museu: "museum",
-  cinema: "movie_theater",
-  igreja: "church",
-};
+const { getTypeInEnglish } = require('../helpers/infoHelper');
 
-exports.getAllInfo = async ({ latitude, longitude, type }) => {
+exports.getAllInfo = async ({ latitude, longitude, type, radius }) => {
 
   const lat = (typeof latitude === 'number' && !isNaN(latitude)) ? latitude : '';
   const lng = (typeof longitude === 'number' && !isNaN(longitude)) ? longitude : '';
+  const userRadius = typeof radius === 'number' && radius > 0 ? radius : 5000; // valor padrão 5000 metros
 
   // Air Quality (OpenWeatherMap)
   const airQualityUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lng}&appid=${process.env.OPENWEATHER_KEY}`;
@@ -58,9 +42,7 @@ exports.getAllInfo = async ({ latitude, longitude, type }) => {
   const placesUrl = 'https://places.googleapis.com/v1/places:searchNearby';
   let placesInfo = null;
   let typeEn = type;
-  if (type && typeMap[type.toLowerCase()]) {
-    typeEn = typeMap[type.toLowerCase()];
-  }
+  typeEn = getTypeInEnglish(type);
   try {
     const includedTypes = typeEn ? [typeEn] : undefined;
     const body = {
@@ -71,7 +53,7 @@ exports.getAllInfo = async ({ latitude, longitude, type }) => {
             latitude: lat,
             longitude: lng
           },
-          radius: 5000
+          radius: userRadius
         }
       }
     };
@@ -91,6 +73,8 @@ exports.getAllInfo = async ({ latitude, longitude, type }) => {
     placesInfo = null;
   }
 
+  let filteredPlacesInfo = placesInfo;
+
   return {
     airQuality: {
       info: airQualityInfo,
@@ -101,8 +85,9 @@ exports.getAllInfo = async ({ latitude, longitude, type }) => {
       url: prefeituraUrl
     },
     places: {
-      info: placesInfo,
-      url: `${placesUrl}?location.latitude=${lat}&location.longitude=${lng}${typeEn ? `&includedTypes=${typeEn}` : ''}&key=${process.env.GOOGLE_PLACES_KEY}`
+      info: filteredPlacesInfo,
+      url: `${placesUrl}?location.latitude=${lat}&location.longitude=${lng}${typeEn ? `&includedTypes=${typeEn}` : ''}&key=${process.env.GOOGLE_PLACES_KEY}`,
+      error: filteredPlacesInfo ? null : 'Não foi possível obter resultados do Google Places. Verifique a chave da API, limites de uso ou parâmetros.'
     },
   };
 };
