@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.post('/', authenticateJWT, reportController.createReport);
 router.get('/', reportController.getAllReports);
+router.delete('/:id', authenticateJWT, reportController.deleteReport);
 
 module.exports = router;
