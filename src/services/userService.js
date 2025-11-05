@@ -89,7 +89,11 @@ exports.login = async ({ email, password }) => {
     throw err;
   }
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '2h' });
-  return { token, validated: user.validated };
+  return {
+    token,
+    validated: user.validated,
+    message: 'Token gerado e e-mail validado.'
+  };
 };
 
 exports.getProfile = async (userId) => {

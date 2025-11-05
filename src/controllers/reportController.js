@@ -10,10 +10,14 @@ exports.createReport = async (req, res) => {
   }
 };
 
-exports.getAllReports = async (_,res) => {
+exports.getAllReports = async (_, res) => {
   try {
     const reports = await reportService.getAllReports();
+    if (!reports || reports.length === 0) {
+      return res.json([]);
+    }
     const filteredReports = reports.map(report => ({
+      id: report.id,
       type: report.type,
       description: report.description,
       location: report.location,
@@ -22,5 +26,15 @@ exports.getAllReports = async (_,res) => {
     res.json(filteredReports);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await reportService.deleteReport(id);
+    res.json(result);
+  } catch (err) {
+    res.status(err.status || 400).json({ error: err.message });
   }
 };

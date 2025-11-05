@@ -18,6 +18,17 @@ exports.createReport = async (data) => {
   return report;
 };
 
+exports.deleteReport = async (id) => {
+  const idx = reports.findIndex(r => r.id === id);
+  if (idx === -1) {
+    const err = new Error('Relato não encontrado');
+    err.status = 404;
+    throw err;
+  }
+  reports.splice(idx, 1);
+  return { message: 'Relato excluído com sucesso.' };
+};
+
 exports.getAllReports = async () => {
   return reports;
 };

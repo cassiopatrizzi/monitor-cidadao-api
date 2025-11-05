@@ -71,7 +71,7 @@
           },
           "responses": {
             "200": {
-              "description": "Login bem-sucedido",
+              "description": "Login bem-sucedido. Token gerado e e-mail validado.",
               "content": {
                 "application/json": {
                   "schema": {
@@ -81,7 +81,8 @@
                         "type": "string"
                       },
                       "validated": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "message": "Token gerado e e-mail validado."
                       }
                     },
                     "required": [
@@ -91,7 +92,8 @@
                   },
                   "example": {
                     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                    "validated": true
+                    "validated": true,
+                    "message": "Token gerado e e-mail validado."
                   }
                 }
               }
@@ -236,61 +238,89 @@
           }
         }
       },
-      "/reports": {
-        "post": {
-          "tags": ["Relatórios"],
-          "summary": "Adicionar relato",
-          "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReportInput"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "Relato criado com sucesso.",
+        "/reports": {
+          "post": {
+            "tags": ["Relatórios"],
+            "summary": "Adicionar relato",
+            "security": [{ "bearerAuth": [] }],
+            "requestBody": {
+              "required": true,
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/Report"
+                    "$ref": "#/components/schemas/ReportInput"
                   }
                 }
               }
             },
-            "400": {
-              "description": "Dados obrigatórios ausentes"
-            }
-          }
-        },
-        "get": {
-          "tags": ["Relatórios"],
-          "summary": "Listar relatos",
-          "responses": {
-            "200": {
-              "description": "Lista de relatos",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
+            "responses": {
+              "201": {
+                "description": "Relato criado com sucesso.",
+                "content": {
+                  "application/json": {
+                    "schema": {
                       "$ref": "#/components/schemas/Report"
                     }
                   }
                 }
+              },
+              "400": {
+                "description": "Dados obrigatórios ausentes"
               }
-            },
-            "500": {
-              "description": "Erro interno"
+            }
+          },
+          "get": {
+            "tags": ["Relatórios"],
+            "summary": "Listar relatos",
+            "responses": {
+              "200": {
+                "description": "Lista de relatos",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Report"
+                      }
+                    }
+                  }
+                }
+              },
+              "500": {
+                "description": "Erro interno"
+              }
             }
           }
-        }
-      },
-      "/info/all": {
+        },
+        "/reports/{id}": {
+          "delete": {
+            "tags": ["Relatórios"],
+            "summary": "Excluir relato",
+            "description": "Exclui um relato pelo id. Requer autenticação JWT.",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" },
+                "description": "ID do relato a ser excluído"
+              }
+            ],
+            "security": [{ "bearerAuth": [] }],
+            "responses": {
+              "200": {
+                "description": "Relato excluído com sucesso.",
+                "content": {
+                  "application/json": {
+                    "example": { "message": "Relato excluído com sucesso." }
+                  }
+                }
+              },
+              "404": { "description": "Relato não encontrado" }
+            }
+          }
+        },
+        "/info/all": {
         "get": {
           "tags": ["Relatórios"],
           "summary": "Obter todas as informações urbanas agregadas",
@@ -458,9 +488,6 @@
             "email": {
               "type": "string"
             },
-            "password": {
-              "type": "string"
-            },
             "city": {
               "type": "string"
             },
@@ -513,6 +540,9 @@
         "Report": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "string"
+            },
             "type": {
               "type": "string"
             },
