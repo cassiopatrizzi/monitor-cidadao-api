@@ -16,7 +16,8 @@ exports.getAllInfo = async (req, res) => {
         return res.status(400).json({ error: 'A localização deve estar no formato latitude, longitude e ambos devem ser números.' });
       }
     }
-    const data = await infoService.getAllInfo({ latitude, longitude, type });
+    const radius = req.query.radius ? parseInt(req.query.radius, 10) : undefined;
+    const data = await infoService.getAllInfo({ latitude, longitude, type, radius });
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
