@@ -30,6 +30,7 @@ const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 const users = [];
 
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT, 10),
@@ -37,7 +38,13 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
 });
 
+const isTestEnv = process.env.NODE_ENV === 'test';
+
 function sendValidationEmail(email, token) {
+  if (isTestEnv) {
+    // Não envia e-mail em ambiente de teste
+    return Promise.resolve(true);
+  }
   return transporter.sendMail({
     from: process.env.SMTP_FROM,
     to: email,

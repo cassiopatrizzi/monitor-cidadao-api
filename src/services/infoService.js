@@ -1,7 +1,7 @@
 const axios = require('axios');
 require('dotenv').config();
 
-const { getTypeInEnglish } = require('../helpers/infoHelper');
+const { getTypeInEnglish } = require('../../helpers/infoHelper');
 
 exports.getAllInfo = async ({ latitude, longitude, type, radius }) => {
 

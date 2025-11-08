@@ -1,3 +1,4 @@
+
 # Monitor Cidadão API
 
 ## Descrição
@@ -143,3 +144,33 @@ No retorno do endpoint `/info/all`, o campo `places.url` mostra a URL de exemplo
 }
 ```
 Se não informar o parâmetro `type`, a URL não terá o parâmetro `includedTypes` e retorna todos os tipos de locais próximos.
+
+# Testes automatizados e mock do serviço de e-mail
+
+Para evitar sobrecarga e requisições reais ao serviço de e-mail durante os testes automatizados, o projeto utiliza um mock do `nodemailer` configurado em `test/setup.js`. Esse mock intercepta todas as chamadas de envio de e-mail, garantindo que nenhum e-mail real seja disparado durante a execução dos testes. Isso protege o serviço de e-mail contra stress e bloqueios, além de tornar os testes mais rápidos e confiáveis.
+
+**Como funciona:**
+- O arquivo `test/setup.js` mocka o método `createTransport` do `nodemailer` antes dos testes rodarem.
+- Para garantir que o mock seja aplicado corretamente, execute os testes com:
+    ```bash
+    NODE_ENV=test npx mocha --require test/setup.js
+    ```
+- O código do serviço de usuário também verifica a variável de ambiente `NODE_ENV` e desabilita o envio real de e-mails em ambiente de teste.
+
+# Geração automática de relatório dos testes
+
+O projeto inclui um script para rodar os testes e gerar um relatório visual em HTML usando o reporter `mochawesome`. O relatório é salvo em `mochawesome-report/mochawesome.html` e pode ser aberto automaticamente após a execução dos testes.
+
+**Script no package.json:**
+```json
+"scripts": {
+    "test:report": "NODE_ENV=test mocha --require test/setup.js --reporter mochawesome && start mochawesome-report/mochawesome.html"
+}
+```
+
+**Como usar:**
+```bash
+npm run test:report
+```
+
+Esse comando executa todos os testes, gera o relatório HTML e abre automaticamente o resultado no navegador padrão (Windows). Isso facilita a análise dos testes e a visualização dos resultados.
