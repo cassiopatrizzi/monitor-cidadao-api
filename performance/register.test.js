@@ -4,7 +4,11 @@ import { user } from './fixtures/userFixture.js';
 
 export const options = {
     vus: 10,
-    duration: '30s'
+    duration: '30s',
+    thresholds: {
+        http_req_duration: ['p(90)<3000', 'max<5000'],
+        http_req_failed: ['rate<0.01']
+    }
 };
 
 export default function () {
@@ -15,6 +19,6 @@ export default function () {
         'Status 201 Usuário cadastrado': (r) => r.status === 201,
         'Status 409 E-mail já cadastrado': (r) => r.status === 409
     });
-    
+
     sleep(1);
 }
