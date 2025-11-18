@@ -1,4 +1,3 @@
-
 # Monitor Cidadão API
 
 ## Descrição
@@ -174,3 +173,69 @@ npm run test:report
 ```
 
 Esse comando executa todos os testes, gera o relatório HTML e abre automaticamente o resultado no navegador padrão (Windows). Isso facilita a análise dos testes e a visualização dos resultados.
+
+
+# Como rodar os testes de performance com k6
+
+Para que os testes automatizados não exijam validação manual de e-mail:
+
+1. **Inicie o backend com o ambiente de teste:**
+    ```bash
+    NODE_ENV=test npm start
+    ```
+    No Windows:
+    ```cmd
+    set NODE_ENV=test && npm start
+    ```
+
+2. **Execute os testes k6 normalmente:**
+    ```bash
+    k6 run performance/<arquivo>.test.js
+    ```
+
+> Com `NODE_ENV=test`, o backend retorna o token de validação na resposta do registro, permitindo que o teste valide o e-mail automaticamente e o login funcione sem intervenção manual.
+
+---
+
+## Visualização em tempo real com o Web Dashboard do k6
+
+O k6 possui um dashboard web embutido para visualizar os resultados dos testes de performance em tempo real.
+
+### Como usar
+
+- Para ativar o dashboard web, execute o teste com a variável de ambiente `K6_WEB_DASHBOARD=true`:
+
+  ```bash
+  K6_WEB_DASHBOARD=true k6 run script.js
+  ```
+
+  **Windows (cmd):**
+  ```cmd
+  set K6_WEB_DASHBOARD=true && k6 run script.js
+  ```
+
+- O dashboard estará disponível em http://127.0.0.1:5665 durante a execução do teste.
+- O processo do k6 só termina quando todas as janelas do dashboard forem fechadas.
+
+---
+
+## Gerando relatórios HTML automaticamente
+
+- Para gerar um relatório HTML ao final do teste, use também a variável `K6_WEB_DASHBOARD_EXPORT`:
+
+  ```bash
+  K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=relatorio.html k6 run script.js
+  ```
+
+  **Windows (cmd):**
+  ```cmd
+  set K6_WEB_DASHBOARD=true && set K6_WEB_DASHBOARD_EXPORT=relatorio.html && k6 run script.js
+  ```
+
+- O arquivo `relatorio.html` será salvo automaticamente ao final do teste, contendo gráficos e métricas detalhadas.
+
+### Observações
+
+- O relatório HTML só inclui gráficos se a duração do teste for maior que três vezes o valor de agregação (`K6_WEB_DASHBOARD_PERIOD`, padrão: 10s).
+- Você pode mudar a porta e o host do dashboard com as variáveis `K6_WEB_DASHBOARD_PORT` e `K6_WEB_DASHBOARD_HOST`.
+- Para gerar o relatório manualmente, também é possível clicar em "Report" no menu do dashboard web.
